@@ -4380,18 +4380,28 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.System.Acts.SetVar,
 		C3.Plugins.Text.Exps.FaceSize,
+		C3.Plugins.System.Acts.SetLayerVisible,
 		C3.Plugins.TiledBg.Acts.SetOpacity,
 		C3.Plugins.Sprite.Acts.SetBoolInstanceVar,
 		C3.Plugins.Sprite.Acts.SetAnim,
 		C3.Behaviors.Pin.Acts.PinByImagePoint,
 		C3.Plugins.Sprite.Acts.SetScale,
+		C3.Plugins.Text.Acts.SetFontSize,
+		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.Sprite.Acts.Destroy,
 		C3.Plugins.Text.Acts.Destroy,
 		C3.Plugins.Particles.Acts.SetSpraying,
+		C3.Plugins.System.Cnds.IsGroupActive,
 		C3.Behaviors.Tween.Cnds.IsPlaying,
-		C3.Plugins.Text.Acts.SetFontSize,
 		C3.Behaviors.Tween.Exps.Value,
 		C3.Behaviors.Tween.Cnds.OnTweensFinished,
+		C3.Plugins.System.Exps.int,
+		C3.Plugins.Sprite.Cnds.OnCreated,
+		C3.Behaviors.Rotate.Acts.SetSpeed,
+		C3.Plugins.System.Exps.choose,
+		C3.Plugins.System.Exps.random,
+		C3.Plugins.Sprite.Acts.SetAnimFrame,
+		C3.Plugins.Sprite.Exps.AnimationFrameCount,
 		C3.Plugins.System.Cnds.CompareVar,
 		C3.Plugins.Touch.Cnds.OnTouchObject,
 		C3.Plugins.Sprite.Cnds.IsBoolInstanceVarSet,
@@ -4399,8 +4409,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.WaitForPreviousActions,
 		C3.Plugins.System.Exps.len,
 		C3.Behaviors.Tween.Acts.TweenOneProperty,
-		C3.Plugins.Sprite.Acts.SetAnimFrame,
 		C3.Plugins.Sprite.Exps.AnimationFrame,
+		C3.Behaviors.Tween.Acts.TweenValue,
 		C3.Plugins.Sprite.Acts.SetWidth,
 		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.Sprite.Acts.SetPos,
@@ -4411,24 +4421,18 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Exps.uppercase,
 		C3.Plugins.System.Exps.tokenat,
 		C3.Behaviors.Pin.Acts.PinByProperties,
-		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.Sprite.Acts.SetX,
 		C3.Plugins.Sprite.Exps.Y,
 		C3.Behaviors.Pin.Acts.Unpin,
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.System.Cnds.PickRandom,
 		C3.Plugins.Text.Acts.MoveToTop,
-		C3.Behaviors.Tween.Acts.TweenValue,
 		C3.Plugins.Text.Exps.Text,
 		C3.Plugins.System.Cnds.Compare,
 		C3.Plugins.Sprite.Exps.PickedCount,
 		C3.Plugins.Sprite.Exps.Count,
 		C3.Plugins.System.Cnds.TriggerOnce,
-		C3.Plugins.Sprite.Cnds.OnCreated,
-		C3.Behaviors.Rotate.Acts.SetSpeed,
-		C3.Plugins.System.Exps.choose,
-		C3.Plugins.System.Exps.random,
-		C3.Plugins.Sprite.Exps.AnimationFrameCount,
+		C3.Plugins.System.Acts.Wait,
 		C3.Behaviors.DragnDrop.Cnds.OnDragStart,
 		C3.Behaviors.Tween.Cnds.IsAnyPlaying,
 		C3.Plugins.Sprite.Acts.MoveToTop,
@@ -4441,15 +4445,16 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.AddVar,
 		C3.Behaviors.DragnDrop.Acts.SetEnabled,
 		C3.Plugins.Sprite.Cnds.CompareFrame,
-		C3.Plugins.System.Acts.Wait,
 		C3.Behaviors.Sin.Acts.SetEnabled,
-		C3.Plugins.Sprite.Acts.SetAngle
+		C3.Plugins.Sprite.Acts.SetAngle,
+		C3.Plugins.System.Acts.RestartLayout
 	];
 };
 self.C3_JsPropNameTable = [
 	{Background: 0},
 	{Found: 0},
 	{Name: 0},
+	{Score: 0},
 	{Animal: 0},
 	{Tween: 0},
 	{Mask: 0},
@@ -4475,15 +4480,25 @@ self.C3_JsPropNameTable = [
 	{Confetti: 0},
 	{Particles: 0},
 	{Mouse: 0},
+	{ScorePanel: 0},
+	{ScoreText: 0},
+	{AnimalScoreText: 0},
+	{AnimalScoreIcon: 0},
+	{CompletePop: 0},
+	{RetryButton: 0},
+	{PopText: 0},
+	{PopScoreText: 0},
 	{Animals: 0},
 	{DropAreas: 0},
 	{DragDrop: 0},
 	{DraggableObjects: 0},
 	{DraggableLetters: 0},
 	{State: 0},
+	{ScrambleScore: 0},
 	{FontSize: 0},
 	{NameLength: 0},
-	{CorrectCounter: 0}
+	{CorrectCounter: 0},
+	{WrongLetter: 0}
 ];
 }
 
@@ -4585,26 +4600,48 @@ function or(l, r)
 
 self.C3_ExpressionFuncs = [
 		() => "play",
+		() => 0,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject();
 		},
-		() => 0,
+		() => "HUD",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpInstVar()).toString();
 		},
 		() => 1,
+		() => 2,
+		() => 3,
+		() => "",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => v0.GetValue();
+		},
+		() => "Text Tweens",
 		() => "font",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpBehavior("font");
 		},
+		() => 40,
+		() => "score",
 		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => v0.GetValue();
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpBehavior("score"));
 		},
-		() => "",
+		() => 128,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => multiply(f0((-1), 1), f1(50, 200));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject());
+		},
 		() => 1.025,
 		() => 0.125,
 		() => "scramble",
@@ -4612,6 +4649,10 @@ self.C3_ExpressionFuncs = [
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
 			return () => f0(n1.ExpInstVar());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpInstVar();
 		},
 		() => 50,
 		() => 0.25,
@@ -4648,21 +4689,15 @@ self.C3_ExpressionFuncs = [
 			return () => f0(f1(n2.ExpInstVar(), (f3() - 1), ""));
 		},
 		() => -999,
+		() => "over",
+		() => "1",
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => multiply(f0((-1), 1), f1(50, 200));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar();
-		},
-		() => "1"
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			return () => (((((v0.GetValue() - v1.GetValue())) >= (1) ? 1 : 0)) ? ((v2.GetValue() - v3.GetValue())) : (1));
+		}
 ];
 
 
